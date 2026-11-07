@@ -30,7 +30,7 @@ export function ScholarshipCard({ s, match }) {
   const urgent = days >= 0 && days <= 21;
 
   return (
-    <article className="flex h-full flex-col rounded-[26px] bg-white p-5 shadow-soft ring-1 ring-ink/5 transition-shadow hover:shadow-card sm:p-6">
+    <article className="flex h-full flex-col rounded-[26px] bg-white p-5 shadow-soft ring-1 ring-ink/5 transition-shadow duration-base hover:shadow-card sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${CATEGORY_STYLES[s.category]}`}>{s.category}</span>
         <span className="text-xs font-medium text-ink/65">{SOURCE_LABEL[s.source]}</span>
@@ -77,7 +77,7 @@ export function ScholarshipCard({ s, match }) {
             onClick={() => remove(s.id)}
             aria-pressed="true"
             aria-label={`Saved, ${STAGES.find((x) => x.id === tracked.stage)?.label}. Remove ${s.title} from tracker`}
-            className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-2 text-sm font-semibold text-cream"
+            className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-2 text-sm font-semibold text-cream transition-colors duration-fast hover:bg-[#2a2820] active:bg-black"
           >
             <BookmarkCheck size={16} aria-hidden="true" />
             {STAGES.find((x) => x.id === tracked.stage)?.label}
@@ -88,7 +88,7 @@ export function ScholarshipCard({ s, match }) {
             onClick={() => save(s.id)}
             aria-pressed="false"
             aria-label={`Save ${s.title}`}
-            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold ring-2 ring-inset ring-ink/15 transition hover:ring-ink"
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold ring-2 ring-inset ring-ink/15 transition duration-fast hover:ring-ink active:bg-ink/10"
           >
             <Bookmark size={16} aria-hidden="true" />
             Save

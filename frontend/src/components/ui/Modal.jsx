@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useTransitions } from '../../lib/motion';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** Accessible dialog: focus trap, Escape to close, focus restored to the opener, body scroll locked. */
 export function Modal({ open, onClose, labelledBy, children, maxWidth = 'max-w-3xl' }) {
   const panelRef = useRef(null);
-  const reduce = useReducedMotion();
+  const { reduce, t } = useTransitions();
   // Keep the latest onClose without re-running the open/close effect on every parent render.
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -60,7 +61,7 @@ export function Modal({ open, onClose, labelledBy, children, maxWidth = 'max-w-3
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
+          transition={t('fast')}
         >
           <div className="absolute inset-0 bg-ink/50 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
           <motion.div
@@ -73,12 +74,12 @@ export function Modal({ open, onClose, labelledBy, children, maxWidth = 'max-w-3
             initial={reduce ? false : { y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={reduce ? { opacity: 0 } : { y: 30, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            transition={t('spring')}
           >
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-ink ring-2 ring-ink/10 transition hover:ring-ink/40"
+              className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white text-ink ring-2 ring-ink/10 transition duration-fast hover:bg-cream hover:ring-ink/40 active:bg-ink active:text-cream"
               aria-label="Close"
             >
               <X size={18} strokeWidth={2.4} />

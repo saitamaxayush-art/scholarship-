@@ -13,6 +13,7 @@ import { buildSpine, partialSpine } from '../../lib/spine';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useAppState } from '../../context/AppState';
 import { PillButton } from '../ui/PillButton';
+import { Reveal, revealMemory } from '../../lib/motion';
 import { Celebrator, Cyclist, Juggler, Reacher, Reader } from '../illustrations/Characters';
 
 const BEATS = [
@@ -94,6 +95,21 @@ function DesktopBeat({ beat, reduce, registerRef }) {
   const figX = useTransform(scrollYProgress, [0.15, 0.3], [70 * fromSide * -1, 0]);
   const figY = useTransform(scrollYProgress, [0.15, 0.3, 0.74, 0.84], [40, 0, 0, -30]);
 
+  // The entrance is scroll-linked, but it only plays the first time through.
+  // At 0.33 progress both the figure and card are fully in place, so switching to
+  // static styles there is seamless; after that the beat never fades again, even
+  // after navigating away and back.
+  const memoryKey = `beat-${beat.n}`;
+  const [revealed, setRevealed] = useState(() => revealMemory.has(memoryKey));
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    if (!revealed && v >= 0.33) {
+      revealMemory.mark(memoryKey);
+      setRevealed(true);
+    }
+  });
+  // Remounting (via key) on the switch drops the scroll bindings entirely.
+  const isStatic = reduce || revealed;
+
   const cardSide = beat.x < 0.5 ? { left: '50%' } : { right: '50%' };
   const { Figure } = beat;
 
@@ -112,12 +128,12 @@ function DesktopBeat({ beat, reduce, registerRef }) {
           className="absolute top-1/2 w-[clamp(170px,17vw,250px)] -translate-x-1/2 -translate-y-[58%]"
           style={{ left: `${beat.x * 100}%` }}
         >
-          <motion.div style={reduce ? undefined : { opacity: figOpacity, x: figX, y: figY }}>
+          <motion.div key={isStatic ? 'static' : 'live'} style={isStatic ? undefined : { opacity: figOpacity, x: figX, y: figY }}>
             <Figure className="h-auto w-full drop-shadow-[0_6px_0_rgba(21,20,15,0.08)]" />
           </motion.div>
         </div>
         <div className="absolute top-1/2 w-[min(440px,40%)] -translate-y-1/2" style={cardSide}>
-          <motion.div style={reduce ? undefined : { opacity: cardOpacity, y: cardY }}>
+          <motion.div key={isStatic ? 'static' : 'live'} style={isStatic ? undefined : { opacity: cardOpacity, y: cardY }}>
             <BeatCard beat={beat} />
           </motion.div>
         </div>
@@ -127,25 +143,16 @@ function DesktopBeat({ beat, reduce, registerRef }) {
 }
 
 /** Mobile beat: a plain vertical stack over a straight trail, same reveal language. */
-function MobileBeat({ beat, reduce, registerRef }) {
+function MobileBeat({ beat, registerRef }) {
   const { Figure } = beat;
-  const reveal = (delay = 0) =>
-    reduce
-      ? {}
-      : {
-          initial: { opacity: 0, y: 36 },
-          whileInView: { opacity: 1, y: 0 },
-          viewport: { once: true, amount: 0.35 },
-          transition: { duration: 0.6, delay, ease: [0.2, 0.8, 0.2, 1] },
-        };
   return (
     <section id={beat.id} ref={registerRef} className="relative px-4 py-14" aria-labelledby={`beat-${beat.n}`}>
-      <motion.div {...reveal(0)} className="mx-auto w-44">
+      <Reveal id={`beat-${beat.n}-figure`} amount={0.35} className="mx-auto w-44">
         <Figure className="h-auto w-full" />
-      </motion.div>
-      <motion.div {...reveal(0.08)} className="mx-auto mt-2 max-w-md">
+      </Reveal>
+      <Reveal id={`beat-${beat.n}-card`} amount={0.35} delay={0.08} className="mx-auto mt-2 max-w-md">
         <BeatCard beat={beat} />
-      </motion.div>
+      </Reveal>
     </section>
   );
 }
@@ -182,14 +189,17 @@ export function SpineStory() {
     if (!g || !g.start || !bandRef.current) return;
     const vh = window.innerHeight;
     const scrolled = window.scrollY + vh * 0.82 - topRef.current;
-    // Reduced motion: the whole trail is drawn up front instead of growing with scroll.
-    const y = reduce ? g.H : scrolled;
+    // The trail only ever grows. Its deepest point is remembered for the visit, so
+    // scrolling back up or returning to this page never redraws it from scratch.
+    // Reduced motion: the whole trail is drawn up front.
+    const depth = revealMemory.reachSpine(scrolled / g.H);
+    const y = reduce ? g.H : Math.max(scrolled, depth * g.H);
     const part = partialSpine(g.samples, y);
     const d = part ? part.outline : '';
     bandRef.current.setAttribute('d', d);
     shadowRef.current.setAttribute('d', d);
     dashRef.current.setAttribute('d', part ? part.centerline : '');
-    const cap = part && !part.complete && part.tip.w < 280 ? part.tip : null;
+    const cap = part && !part.complete && part.tip.w < 280 ? part.tip : null; // round growing tip
     for (const [el, dx, dy] of [
       [capRef.current, 0, 0],
       [shadowCapRef.current, 7, 10],
@@ -198,8 +208,10 @@ export function SpineStory() {
       el.setAttribute('cy', cap ? cap.y + dy : 0);
       el.setAttribute('r', cap ? cap.w / 2 : 0);
     }
-    const progress = Math.max(0, Math.min(1, scrolled / g.H));
-    bg.set(transform(progress, [0, 0.35, 0.8], [CREAM, '#EDEED6', '#DDEDC7']));
+    if (!reduce) {
+      const progress = Math.max(0, Math.min(1, scrolled / g.H));
+      bg.set(transform(progress, [0, 0.35, 0.8], [CREAM, '#EDEED6', '#DDEDC7']));
+    }
   }, [reduce, bg]);
 
   const measure = useCallback(() => {
@@ -328,7 +340,7 @@ export function SpineStory() {
           isDesktop ? (
             <DesktopBeat key={beat.n} beat={beat} reduce={reduce} registerRef={(el) => (beatEls.current[i] = el)} />
           ) : (
-            <MobileBeat key={beat.n} beat={beat} reduce={reduce} registerRef={(el) => (beatEls.current[i] = el)} />
+            <MobileBeat key={beat.n} beat={beat} registerRef={(el) => (beatEls.current[i] = el)} />
           ),
         )}
       </div>
@@ -349,15 +361,16 @@ export function SpineStory() {
               Start matching
             </PillButton>
           </div>
-          <motion.div
+          <Reveal
+            id="closing-celebrator"
             className="mx-auto w-56 sm:w-72 md:w-80"
-            initial={reduce ? false : { opacity: 0, y: 50, rotate: -4 }}
-            whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+            amount={0.4}
+            from={{ opacity: 0, y: 50, rotate: -4 }}
+            to={{ opacity: 1, y: 0, rotate: 0 }}
+            transition="bounce"
           >
             <Celebrator className="h-auto w-full" />
-          </motion.div>
+          </Reveal>
         </div>
       </section>
     </motion.div>

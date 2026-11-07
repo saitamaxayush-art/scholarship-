@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 
 const VARIANTS = {
-  grass: 'bg-grass text-ink hover:bg-[#9ddb5c] shadow-[inset_0_-3px_0_rgba(95,168,46,0.55)]',
-  white: 'bg-white text-ink ring-2 ring-inset ring-ink/10 hover:ring-ink/30',
-  outline: 'bg-transparent text-ink ring-2 ring-inset ring-ink hover:bg-ink/5',
-  ink: 'bg-ink text-cream hover:bg-[#2a2820]',
+  grass: 'bg-grass text-ink hover:bg-[#9ddb5c] shadow-[inset_0_-3px_0_rgba(95,168,46,0.55)] active:bg-[#84c43f] active:shadow-[inset_0_2px_0_rgba(95,168,46,0.55)]',
+  white: 'bg-white text-ink ring-2 ring-inset ring-ink/10 hover:ring-ink/30 active:bg-cream active:ring-ink/50',
+  outline: 'bg-transparent text-ink ring-2 ring-inset ring-ink hover:bg-ink/5 active:bg-ink/10',
+  ink: 'bg-ink text-cream hover:bg-[#2a2820] active:bg-black',
 };
 
 const CIRCLES = {
@@ -37,12 +37,12 @@ export function PillButton({
   ...rest
 }) {
   const s = SIZES[size];
-  const classes = `group inline-flex select-none items-center whitespace-nowrap rounded-full font-semibold tracking-tight transition-[background-color,box-shadow,transform] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${s.root} ${VARIANTS[variant]} ${className}`;
+  const classes = `group inline-flex select-none items-center whitespace-nowrap rounded-full font-semibold tracking-tight pressable transition-[background-color,box-shadow,scale] duration-fast disabled:cursor-not-allowed disabled:opacity-50 ${s.root} ${VARIANTS[variant]} ${className}`;
   const inner = (
     <>
       <span
         aria-hidden="true"
-        className={`grid shrink-0 place-items-center rounded-full transition-transform duration-300 group-hover:rotate-[-12deg] group-hover:scale-105 ${s.circle} ${CIRCLES[variant]}`}
+        className={`grid shrink-0 place-items-center rounded-full transition-transform duration-base group-hover:rotate-[-12deg] group-hover:scale-105 group-active:scale-90 ${s.circle} ${CIRCLES[variant]}`}
       >
         <Icon size={s.icon} strokeWidth={2.4} />
       </span>

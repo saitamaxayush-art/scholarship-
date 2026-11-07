@@ -1,9 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { useAppState } from '../../context/AppState';
+import { useTransitions } from '../../lib/motion';
 
 export function Toasts() {
   const { toasts, dismissToast } = useAppState();
+  const { t } = useTransitions();
   return (
     <div
       className="pointer-events-none fixed inset-x-0 bottom-4 z-[90] flex flex-col items-center gap-2 px-4 sm:bottom-6"
@@ -11,10 +13,11 @@ export function Toasts() {
       aria-live="polite"
     >
       <AnimatePresence initial={false}>
-        {toasts.map((t) => (
+        {toasts.map((toast) => (
           <motion.div
-            key={t.id}
+            key={toast.id}
             layout
+            transition={t('base')}
             initial={{ opacity: 0, y: 16, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
@@ -23,10 +26,10 @@ export function Toasts() {
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-grass text-ink" aria-hidden="true">
               <Check size={15} strokeWidth={3} />
             </span>
-            <span className="pr-1">{t.message}</span>
+            <span className="pr-1">{toast.message}</span>
             <button
               type="button"
-              onClick={() => dismissToast(t.id)}
+              onClick={() => dismissToast(toast.id)}
               className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-cream/70 hover:bg-white/10 hover:text-cream focus-visible:outline-cream"
               aria-label="Dismiss notification"
             >

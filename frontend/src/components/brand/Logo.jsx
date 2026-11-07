@@ -25,8 +25,8 @@ export function Wordmark({ className = '' }) {
 
 export function Logo({ className = '', onClick }) {
   return (
-    <Link to="/" onClick={onClick} className={`inline-flex items-center gap-2 text-ink ${className}`} aria-label="meritrail home">
-      <Logomark />
+    <Link to="/" onClick={onClick} className={`pressable group inline-flex items-center gap-2 rounded-full text-ink transition-[scale] duration-fast ${className}`} aria-label="meritrail home">
+      <Logomark className="transition-transform duration-base group-hover:-rotate-12" />
       <Wordmark />
     </Link>
   );

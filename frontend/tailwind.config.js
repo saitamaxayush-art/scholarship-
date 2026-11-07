@@ -31,6 +31,16 @@ export default {
         soft: '0 10px 30px -16px rgba(21,20,15,0.25)',
       },
       maxWidth: { measure: '68ch' },
+      // Motion tokens. Keep in sync with --dur-* / --ease-standard in index.css and
+      // DUR / EASE in src/lib/motion.jsx.
+      transitionDuration: { DEFAULT: '250ms', fast: '150ms', base: '250ms', slow: '500ms' },
+      transitionTimingFunction: { DEFAULT: 'cubic-bezier(0.2, 0.8, 0.2, 1)', standard: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+      keyframes: {
+        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
+      },
+      animation: {
+        shimmer: 'shimmer 1.4s linear infinite',
+      },
     },
   },
   plugins: [],

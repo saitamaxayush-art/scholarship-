@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { RotateCcw, Search, SlidersHorizontal, Sparkles, UserRound, X } from 'lucide-react';
 import { CATEGORIES, FIELDS, LEVELS, SCHOLARSHIPS, SOURCES } from '../data/scholarships';
 import { useAppState } from '../context/AppState';
@@ -9,6 +9,9 @@ import { daysUntil } from '../lib/format';
 import { ScholarshipCard } from '../components/scholarships/ScholarshipCard';
 import { PillButton } from '../components/ui/PillButton';
 import { Backpacker } from '../components/illustrations/Characters';
+import { ScholarshipCardSkeleton } from '../components/ui/Skeleton';
+import { useSimulatedLoad } from '../hooks/useSimulatedLoad';
+import { useTransitions } from '../lib/motion';
 
 const AMOUNTS = [
   { value: 0, label: 'Any amount' },
@@ -54,11 +57,16 @@ function Toggle({ checked, onChange, label, disabled, hint }) {
         aria-checked={checked}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className="focus-square flex w-full items-center justify-between gap-3 rounded-2xl py-1 text-left disabled:opacity-50"
+        className="focus-square group flex w-full items-center justify-between gap-3 rounded-2xl py-1 text-left disabled:cursor-not-allowed disabled:opacity-50"
       >
         <span className="text-sm font-semibold">{label}</span>
-        <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${checked ? 'bg-grass-deep' : 'bg-ink/20'}`} aria-hidden="true">
-          <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-[left] ${checked ? 'left-6' : 'left-1'}`} />
+        <span
+          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-fast ${
+            checked ? 'bg-grass-deep group-enabled:group-hover:bg-[#549a27]' : 'bg-ink/20 group-enabled:group-hover:bg-ink/30'
+          }`}
+          aria-hidden="true"
+        >
+          <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-[left,width] duration-fast group-active:w-6 ${checked ? 'left-6 group-active:left-5' : 'left-1'}`} />
         </span>
       </button>
       {hint}
@@ -69,7 +77,7 @@ function Toggle({ checked, onChange, label, disabled, hint }) {
 export default function Scholarships() {
   const [params, setParams] = useSearchParams();
   const { profile, openDetail } = useAppState();
-  const reduce = useReducedMotion();
+  const { t } = useTransitions();
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [f, setF] = useState(() => ({
@@ -136,6 +144,8 @@ export default function Scholarships() {
     onlyMatches;
 
   const clearAll = () => setF({ ...DEFAULTS });
+  // Skeleton while the (simulated) search runs. Saving a card doesn't change the key.
+  const loading = useSimulatedLoad(JSON.stringify([f, effectiveSort, profile]));
   const eligibleCount = profile ? SCHOLARSHIPS.filter((s) => evaluateMatch(s, profile).eligible).length : 0;
 
   const toggleCategory = (c) =>
@@ -280,7 +290,7 @@ export default function Scholarships() {
               onClick={() => setFiltersOpen((o) => !o)}
               aria-expanded={filtersOpen}
               aria-controls="mobile-filters"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 font-semibold text-cream lg:hidden"
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 font-semibold text-cream transition-colors duration-fast hover:bg-[#2a2820] active:bg-black lg:hidden"
             >
               <SlidersHorizontal size={18} aria-hidden="true" />
               Filters{activeCount ? ` (${activeCount})` : ''}
@@ -300,9 +310,10 @@ export default function Scholarships() {
           {filtersOpen && (
             <motion.div
               id="mobile-filters"
-              initial={reduce ? false : { height: 0, opacity: 0 }}
+              initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
-              exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={t('base')}
               className="overflow-hidden lg:hidden"
             >
               <div className="mt-5 rounded-[26px] bg-white p-5">{filterPanel}</div>
@@ -323,24 +334,23 @@ export default function Scholarships() {
               Results
             </h2>
             <p className="mb-4 text-sm font-medium text-ink/70" aria-live="polite">
-              Showing {results.length} of {SCHOLARSHIPS.length} sample scholarships
+              {loading ? 'Updating results...' : `Showing ${results.length} of ${SCHOLARSHIPS.length} sample scholarships`}
             </p>
-            {results.length ? (
-              <motion.ul layout={!reduce} className="grid gap-5 md:grid-cols-2">
-                <AnimatePresence initial={false}>
-                  {results.map(({ s, match }) => (
-                    <motion.li
-                      key={s.id}
-                      layout={!reduce}
-                      initial={reduce ? false : { opacity: 0, scale: 0.97 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ScholarshipCard s={s} match={match} />
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
+            {loading ? (
+              <ul className="grid gap-5 md:grid-cols-2" aria-busy="true" aria-label="Loading results">
+                {Array.from({ length: Math.min(6, Math.max(2, results.length)) }, (_, i) => (
+                  <li key={i}>
+                    <ScholarshipCardSkeleton />
+                  </li>
+                ))}
+              </ul>
+            ) : results.length ? (
+              <motion.ul className="grid gap-5 md:grid-cols-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={t('fast')}>
+                {results.map(({ s, match }) => (
+                  <li key={s.id}>
+                    <ScholarshipCard s={s} match={match} />
+                  </li>
+                ))}
               </motion.ul>
             ) : (
               <div className="flex flex-col items-center rounded-[28px] bg-white px-6 py-14 text-center">

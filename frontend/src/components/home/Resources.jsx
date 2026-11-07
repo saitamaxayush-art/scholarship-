@@ -1,20 +1,14 @@
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { ARTICLES } from '../../data/articles';
+import { Reveal } from '../../lib/motion';
 
-export function ArticleCard({ article, index = 0 }) {
-  const reduce = useReducedMotion();
+export function ArticleCard({ article, index = 0, context = 'home' }) {
   return (
-    <motion.li
-      initial={reduce ? false : { opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.6, delay: index * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
-    >
+    <Reveal as="li" id={`article-${context}-${article.slug}`} y={40} amount={0.25} delay={index * 0.08}>
       <Link
         to={`/resources/${article.slug}`}
-        className="focus-square group flex h-full flex-col overflow-hidden rounded-[28px] bg-white shadow-soft transition-transform duration-300 hover:-translate-y-1"
+        className="focus-square pressable group flex h-full flex-col overflow-hidden rounded-[28px] bg-white shadow-soft transition-[transform,box-shadow,scale] duration-base hover:-translate-y-1 hover:shadow-card"
       >
         <div className="overflow-hidden">
           <img
@@ -22,7 +16,9 @@ export function ArticleCard({ article, index = 0 }) {
             alt={article.imageAlt}
             loading="lazy"
             decoding="async"
-            className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            width={1000}
+            height={750}
+            className="aspect-[4/3] w-full object-cover transition-transform duration-slow group-hover:scale-[1.04]"
           />
         </div>
         <div className="flex flex-1 flex-col p-6">
@@ -33,14 +29,14 @@ export function ArticleCard({ article, index = 0 }) {
           <h3 className="mt-4 text-[1.45rem] font-semibold leading-tight tracking-[-0.03em]">{article.title}</h3>
           <p className="mt-3 flex-1 text-ink/70">{article.excerpt}</p>
           <span className="mt-6 inline-flex items-center gap-2 font-semibold">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-cream transition-transform group-hover:rotate-[-12deg]" aria-hidden="true">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-cream transition-transform duration-base group-hover:rotate-[-12deg]" aria-hidden="true">
               <ArrowUpRight size={16} />
             </span>
             Read the guide
           </span>
         </div>
       </Link>
-    </motion.li>
+    </Reveal>
   );
 }
 

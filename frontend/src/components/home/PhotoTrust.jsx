@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
 import { Building2, GraduationCap, HeartHandshake, Landmark } from 'lucide-react';
 import { SCHOLARSHIPS, SOURCES } from '../../data/scholarships';
 import { Swoosh } from '../illustrations/Characters';
+import { Reveal, useReveal } from '../../lib/motion';
 
 const PHOTOS = [
   { src: '/images/strip-laptops.jpg', alt: 'Two students working through something together on a laptop', h: 'h-64 md:h-80' },
@@ -19,7 +19,13 @@ const SOURCE_ICONS = {
 };
 
 export function PhotoTrust() {
-  const reduce = useReducedMotion();
+  const swoosh = useReveal('trust-swoosh', {
+    from: { pathLength: 0 },
+    to: { pathLength: 1 },
+    amount: 0.5,
+    delay: 0.3,
+    transition: 'slow',
+  });
   const counts = Object.fromEntries(SOURCES.map((s) => [s.id, SCHOLARSHIPS.filter((x) => x.source === s.id).length]));
 
   return (
@@ -45,36 +51,29 @@ export function PhotoTrust() {
       <div className="relative mt-12">
         <ul className="container-x flex snap-x snap-mandatory items-end gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
           {PHOTOS.map((p, i) => (
-            <motion.li
+            <Reveal
+              as="li"
+              id={`trust-photo-${i}`}
               key={p.src}
+              y={40}
+              delay={i * 0.08}
               className="w-[72vw] shrink-0 snap-center sm:w-[44vw] md:w-auto"
-              initial={reduce ? false : { opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
             >
               <img
                 src={p.src}
                 alt={p.alt}
                 loading="lazy"
                 decoding="async"
+                width={900}
+                height={600}
                 className={`w-full rounded-[28px] object-cover ${p.h}`}
               />
-            </motion.li>
+            </Reveal>
           ))}
         </ul>
         <Swoosh
           className="pointer-events-none absolute left-1/2 top-[-2.5rem] hidden w-[22rem] -translate-x-[18%] md:block"
-          pathProps={
-            reduce
-              ? {}
-              : {
-                  initial: { pathLength: 0 },
-                  whileInView: { pathLength: 1 },
-                  viewport: { once: true, amount: 0.5 },
-                  transition: { duration: 1.4, ease: 'easeInOut', delay: 0.3 },
-                }
-          }
+          pathProps={swoosh}
         />
       </div>
 
@@ -87,7 +86,7 @@ export function PhotoTrust() {
               <li key={s.id}>
                 <Link
                   to={`/scholarships?source=${s.id}`}
-                  className="focus-square group flex items-center gap-4 rounded-[22px] border-2 border-ink/10 bg-white p-4 transition-colors hover:border-ink"
+                  className="focus-square pressable group flex items-center gap-4 rounded-[22px] border-2 border-ink/10 bg-white p-4 transition-[border-color,scale] duration-fast hover:border-ink active:bg-cream"
                 >
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-grass/60 transition-colors group-hover:bg-grass" aria-hidden="true">
                     <Icon size={22} strokeWidth={2.2} />

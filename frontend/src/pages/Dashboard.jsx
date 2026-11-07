@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronLeft, ChevronRight, GripVertical, ListChecks, RotateCcw, Search, Trash2 } from 'lucide-react';
 import { STAGES } from '../data/scholarships';
 import { getScholarship, useAppState } from '../context/AppState';
 import { daysUntil, deadlineLabel, formatDate, formatMoney } from '../lib/format';
 import { PillButton } from '../components/ui/PillButton';
 import { Backpacker } from '../components/illustrations/Characters';
+import { TrackerCardSkeleton } from '../components/ui/Skeleton';
+import { useSimulatedLoad } from '../hooks/useSimulatedLoad';
+import { useTransitions } from '../lib/motion';
 
 const STAGE_TONES = {
   saved: 'bg-white',
@@ -75,7 +78,7 @@ function TrackerCard({ sid, item, onDragStart, onDragEnd }) {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="mt-3 inline-flex items-center gap-1.5 rounded-full text-sm font-semibold"
+        className="-ml-2 mt-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-semibold transition-colors duration-fast hover:bg-ink/[0.06] active:bg-ink/10"
       >
         <ListChecks size={16} aria-hidden="true" /> {open ? 'Hide checklist' : 'Show checklist'}
       </button>
@@ -119,7 +122,7 @@ function TrackerCard({ sid, item, onDragStart, onDragEnd }) {
           type="button"
           disabled={idx === 0}
           onClick={() => setStage(sid, STAGES[idx - 1].id)}
-          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-sm font-semibold hover:bg-ink/[0.06] disabled:invisible"
+          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-sm font-semibold transition-colors duration-fast hover:bg-ink/[0.06] active:bg-ink/10 disabled:invisible"
           aria-label={idx > 0 ? `Move ${s.title} back to ${STAGES[idx - 1].label}` : undefined}
         >
           <ChevronLeft size={16} aria-hidden="true" />
@@ -129,7 +132,7 @@ function TrackerCard({ sid, item, onDragStart, onDragEnd }) {
           type="button"
           disabled={idx === STAGES.length - 1}
           onClick={() => setStage(sid, STAGES[idx + 1].id)}
-          className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-sm font-semibold text-cream hover:bg-[#2a2820] disabled:invisible"
+          className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-sm font-semibold text-cream transition-colors duration-fast hover:bg-[#2a2820] active:bg-black disabled:invisible"
           aria-label={idx < STAGES.length - 1 ? `Move ${s.title} to ${STAGES[idx + 1].label}` : undefined}
         >
           {idx < STAGES.length - 1 && STAGES[idx + 1].label}
@@ -142,7 +145,8 @@ function TrackerCard({ sid, item, onDragStart, onDragEnd }) {
 
 export default function Dashboard() {
   const { tracker, setStage, resetDemo } = useAppState();
-  const reduce = useReducedMotion();
+  const { reduce, t } = useTransitions();
+  const loading = useSimulatedLoad('board', { initial: 400 });
   const [dragging, setDragging] = useState(null);
   const [over, setOver] = useState(null);
 
@@ -246,7 +250,7 @@ export default function Dashboard() {
         </aside>
         </div>
 
-        {entries.length === 0 ? (
+        {entries.length === 0 && !loading ? (
           <div className="mt-10 flex flex-col items-center rounded-[28px] bg-white px-6 py-16 text-center">
             <Backpacker className="w-40" />
             <h2 className="mt-4 text-2xl font-semibold">Your board is empty.</h2>
@@ -280,24 +284,33 @@ export default function Dashboard() {
                       if (!e.currentTarget.contains(e.relatedTarget)) setOver(null);
                     }}
                     onDrop={(e) => onDrop(e, stage.id)}
-                    className={`flex min-h-[220px] flex-col rounded-[26px] p-3 transition-[box-shadow,background-color] ${STAGE_TONES[stage.id]} ${
+                    className={`flex min-h-[220px] flex-col rounded-[26px] p-3 transition-[box-shadow,background-color] duration-fast ${STAGE_TONES[stage.id]} ${
                       over === stage.id ? 'ring-[3px] ring-ink ring-offset-2 ring-offset-cream' : 'ring-1 ring-ink/10'
                     }`}
                   >
                     <h3 className="flex items-center justify-between px-2 pb-3 pt-1 font-semibold">
                       {stage.label}
-                      <span className="grid h-7 min-w-7 place-items-center rounded-full bg-ink px-2 text-xs text-cream">{byStage[stage.id].length}</span>
+                      <span className="grid h-7 min-w-7 place-items-center rounded-full bg-ink px-2 text-xs text-cream">
+                        {loading ? <span className="sr-only">Loading</span> : byStage[stage.id].length}
+                      </span>
                     </h3>
+                    {loading ? (
+                      <div className="flex flex-col gap-3" aria-busy="true">
+                        {Array.from({ length: Math.max(1, byStage[stage.id].length) }, (_, i) => (
+                          <TrackerCardSkeleton key={i} />
+                        ))}
+                      </div>
+                    ) : (
                     <ul className="flex flex-1 flex-col gap-3">
                       <AnimatePresence initial={false}>
                         {byStage[stage.id].map(([sid, item]) => (
                           <motion.li
                             key={sid}
                             layout={!reduce}
-                            initial={reduce ? false : { opacity: 0, y: 8 }}
+                            initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: dragging === sid ? 0.45 : 1, y: 0 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
+                            transition={t('fast')}
                           >
                             <TrackerCard sid={sid} item={item} onDragStart={onDragStart} onDragEnd={onDragEnd} />
                           </motion.li>
@@ -309,6 +322,7 @@ export default function Dashboard() {
                         </li>
                       )}
                     </ul>
+                    )}
                   </div>
                 ))}
               </div>

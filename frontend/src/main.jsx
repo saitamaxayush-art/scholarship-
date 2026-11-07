@@ -6,6 +6,9 @@ import { AppStateProvider } from './context/AppState';
 import App from './App';
 import './index.css';
 
+// Route changes manage scroll themselves (see App and ScrollManager).
+if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

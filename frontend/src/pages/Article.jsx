@@ -24,7 +24,7 @@ export default function Article() {
           <h1 className="mt-5 text-title font-semibold">{article.title}</h1>
           <p className="mt-5 text-xl leading-relaxed text-ink/75">{article.excerpt}</p>
         </header>
-        <img src={article.image} alt={article.imageAlt} className="mx-auto mt-10 aspect-[16/8] w-full max-w-5xl rounded-[32px] object-cover" />
+        <img src={article.image} alt={article.imageAlt} width={1000} height={500} className="mx-auto mt-10 aspect-[16/8] w-full max-w-5xl rounded-[32px] object-cover" />
         <div className="prose-legal mx-auto max-w-measure">
           {article.sections.map((sec) => (
             <section key={sec.heading}>
@@ -43,7 +43,7 @@ export default function Article() {
         </h2>
         <ul className="mt-6 grid gap-6 md:grid-cols-2">
           {others.map((a, i) => (
-            <ArticleCard key={a.slug} article={a} index={i} />
+            <ArticleCard key={a.slug} article={a} index={i} context={`more-${slug}`} />
           ))}
         </ul>
       </section>

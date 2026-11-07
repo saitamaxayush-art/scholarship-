@@ -5,6 +5,7 @@ import { Menu, Sparkles, X } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { PillButton } from '../ui/PillButton';
 import { useAppState } from '../../context/AppState';
+import { useTransitions } from '../../lib/motion';
 
 export const NAV_LINKS = [
   { label: 'Scholarships', to: '/scholarships' },
@@ -40,6 +41,7 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const { pathname, hash } = useLocation();
   const { tracker } = useAppState();
+  const { t } = useTransitions();
   const toggleRef = useRef(null);
   const panelRef = useRef(null);
   const trackedCount = Object.keys(tracker).length;
@@ -59,7 +61,7 @@ export function Nav() {
     return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
-  const linkClass = 'rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors';
+  const linkClass = 'rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors duration-fast active:bg-ink/15';
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-[var(--nav-h)] border-b border-ink/10 bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/85">
@@ -93,7 +95,7 @@ export function Nav() {
           <button
             ref={toggleRef}
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-full bg-white ring-2 ring-ink/10 lg:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full bg-white ring-2 ring-ink/10 transition duration-fast hover:ring-ink/40 active:bg-cream lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -112,7 +114,7 @@ export function Nav() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
+            transition={t('fast')}
             className="absolute inset-x-0 top-full border-b border-ink/10 bg-cream px-4 pb-6 pt-2 shadow-soft lg:hidden"
           >
             <ul className="flex flex-col gap-1">
