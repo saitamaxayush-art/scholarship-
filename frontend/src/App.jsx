@@ -1,52 +1,38 @@
-import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Header } from './components/layout/Header';
+import { Route, Routes } from 'react-router-dom';
+import { Nav } from './components/layout/Nav';
 import { Footer } from './components/layout/Footer';
-import { Toast } from './components/common/Toast';
-import { ScrollToTop } from './components/common/ScrollToTop';
-import { ScholarshipModal } from './components/scholarships/ScholarshipModal';
-import { LandingPage } from './pages/LandingPage';
-import { ScholarshipDiscoveryPage } from './pages/ScholarshipDiscoveryPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
-import { TermsPage } from './pages/TermsPage';
+import { ScrollManager } from './components/layout/ScrollManager';
+import { Toasts } from './components/ui/Toasts';
+import { ScholarshipDetail } from './components/scholarships/ScholarshipDetail';
+import Home from './pages/Home';
+import Scholarships from './pages/Scholarships';
+import Dashboard from './pages/Dashboard';
+import Start from './pages/Start';
+import Article from './pages/Article';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import NotFound from './pages/NotFound';
 
-export const App = () => {
-  const location = useLocation();
-
+export default function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-paper text-ink selection:bg-gold selection:text-ink font-sans">
-      <ScrollToTop />
-      <Header />
-      <ScholarshipModal />
-      <Toast />
-
-      <div className="flex-1">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <Routes location={location}>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/scholarships" element={<ScholarshipDiscoveryPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/privacy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="*" element={<LandingPage />} />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
+    <>
+      <ScrollManager />
+      <Nav />
+      <main id="main" tabIndex={-1} className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/scholarships" element={<Scholarships />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/start" element={<Start />} />
+          <Route path="/resources/:slug" element={<Article />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
       <Footer />
-    </div>
+      <ScholarshipDetail />
+      <Toasts />
+    </>
   );
-};
-
-export default App;
-
+}

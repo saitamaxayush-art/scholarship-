@@ -1,57 +1,37 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       colors: {
-        paper: 'var(--paper)',
-        ink: 'var(--ink)',
-        forest: {
-          DEFAULT: 'var(--forest)',
-          deep: 'var(--forest-deep)',
-          hover: '#183c2e',
+        cream: 'rgb(var(--cream-rgb) / <alpha-value>)',
+        grass: {
+          DEFAULT: 'rgb(var(--grass-rgb) / <alpha-value>)',
+          deep: 'rgb(var(--grass-deep-rgb) / <alpha-value>)',
+          soft: '#DCEFC4',
         },
-        gold: {
-          DEFAULT: 'var(--gold)',
-          hover: '#c49333',
-          light: '#f5edd8',
-        },
-        sand: {
-          DEFAULT: 'var(--sand)',
-          subtle: '#F4F0E8',
-          border: 'var(--sand)',
-        },
-        stone: {
-          DEFAULT: 'var(--stone)',
-          muted: '#8E938D',
-          light: '#A5AAA3',
-        },
+        coral: 'rgb(var(--coral-rgb) / <alpha-value>)',
+        sun: 'rgb(var(--sun-rgb) / <alpha-value>)',
+        ink: 'rgb(var(--ink-rgb) / <alpha-value>)',
+        cobalt: '#2B4BD8',
+        tomato: '#E8442E',
+        mustard: '#E2B33A',
+        pink: '#F4A6C0',
       },
       fontFamily: {
-        serif: ['Fraunces', 'Georgia', 'serif'],
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['"General Sans"', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
-      borderRadius: {
-        DEFAULT: '4px',
-        sm: '2px',
-        md: '4px',
-        lg: '6px',
-        none: '0px',
+      fontSize: {
+        display: ['clamp(3rem, 7.4vw, 6rem)', { lineHeight: '0.95', letterSpacing: '-0.045em' }],
+        'display-sm': ['clamp(2.5rem, 5.2vw, 4.5rem)', { lineHeight: '1', letterSpacing: '-0.04em' }],
+        title: ['clamp(2rem, 3.6vw, 3.25rem)', { lineHeight: '1.04', letterSpacing: '-0.035em' }],
       },
       boxShadow: {
-        'subtle': '0 1px 3px rgba(20, 24, 26, 0.05)',
-        'elevated': '0 4px 12px rgba(20, 24, 26, 0.08)',
-        'panel': '0 8px 24px rgba(20, 24, 26, 0.10)',
+        card: '0 1px 0 rgba(21,20,15,0.04), 0 18px 40px -18px rgba(21,20,15,0.28)',
+        soft: '0 10px 30px -16px rgba(21,20,15,0.25)',
       },
-      letterSpacing: {
-        editorial: '-0.03em',
-        tightest: '-0.04em',
-      }
+      maxWidth: { measure: '68ch' },
     },
   },
   plugins: [],
-}
-
+};

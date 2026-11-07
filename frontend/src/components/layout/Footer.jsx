@@ -1,132 +1,119 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { Github, Instagram, Linkedin, Mail, Search } from 'lucide-react';
+import { Logomark, Wordmark } from '../brand/Logo';
+import { PillButton } from '../ui/PillButton';
+import { useAppState } from '../../context/AppState';
 
-export const Footer = () => {
+const COLUMNS = [
+  {
+    title: 'Explore',
+    links: [
+      { label: 'Scholarships', to: '/scholarships' },
+      { label: 'How it Works', to: '/#how-it-works' },
+      { label: 'Application tracker', to: '/dashboard' },
+      { label: 'Build your profile', to: '/start' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'All guides', to: '/#resources' },
+      { label: 'Scholarship amounts', to: '/resources/how-much-can-you-get' },
+      { label: 'Essay writing', to: '/resources/essays-reviewers-read' },
+      { label: 'Application timelines', to: '/resources/application-timeline' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'Contact', href: 'mailto:hello@meritrail.example' },
+      { label: 'Privacy Policy', to: '/privacy' },
+      { label: 'Terms & Conditions', to: '/terms' },
+    ],
+  },
+];
+
+const SOCIALS = [
+  { label: 'Instagram', Icon: Instagram },
+  { label: 'LinkedIn', Icon: Linkedin },
+  { label: 'GitHub', Icon: Github },
+];
+
+export function Footer() {
+  const { notify } = useAppState();
+  const linkClass = 'rounded-md text-[1.0625rem] font-medium text-ink/80 transition-colors hover:text-ink hover:underline decoration-2 underline-offset-4 focus-square';
+
   return (
-    <footer className="bg-forest-deep text-[#EDE9DF] border-t border-[#222B26] pt-16 pb-12 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-[#222B26]">
-          {/* Brand Column */}
-          <div className="md:col-span-5 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-forest text-paper flex items-center justify-center font-serif text-lg font-bold rounded-[3px] border border-gold/40">
-                G
-              </div>
-              <span className="font-serif text-2xl tracking-tight font-bold text-paper">
-                GRANTLY
-              </span>
-            </div>
-            <p className="text-sm text-[#A5AAA3] leading-relaxed max-w-sm">
-              A structured scholarship workspace replacing fragmented portals, buried eligibility rules, and scattered spreadsheets with verified criteria and unified deadline tracking.
-            </p>
-            <div className="pt-2 text-xs text-[#8E938D] font-mono">
-              Designed for undergraduate, graduate, and doctoral scholars.
-            </div>
-          </div>
-
-          {/* Navigation Column 1 */}
-          <div className="md:col-span-2 space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gold">
-              Navigation
-            </h4>
-            <ul className="space-y-2 text-sm text-[#A5AAA3]">
-              <li>
-                <Link to="/scholarships" className="hover:text-paper transition-colors flex items-center gap-1 group">
-                  <span>Scholarship Catalog</span>
-                  <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              </li>
-              <li>
-                <Link to="/dashboard" className="hover:text-paper transition-colors flex items-center gap-1 group">
-                  <span>Application Tracker</span>
-                  <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              </li>
-              <li>
-                <a href="/#how-it-works" className="hover:text-paper transition-colors">
-                  How It Works
-                </a>
-              </li>
-              <li>
-                <a href="/#interactive-demo" className="hover:text-paper transition-colors">
-                  Interactive Filter Demo
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Navigation Column 2 */}
-          <div className="md:col-span-2 space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gold">
-              Discipline Areas
-            </h4>
-            <ul className="space-y-2 text-sm text-[#A5AAA3]">
-              <li>
-                <Link to="/scholarships?field=STEM" className="hover:text-paper transition-colors">
-                  STEM &amp; Computing
-                </Link>
-              </li>
-              <li>
-                <Link to="/scholarships?field=Humanities" className="hover:text-paper transition-colors">
-                  Humanities &amp; Social Inquiry
-                </Link>
-              </li>
-              <li>
-                <Link to="/scholarships?field=Healthcare" className="hover:text-paper transition-colors">
-                  Medicine &amp; Clinical Sciences
-                </Link>
-              </li>
-              <li>
-                <Link to="/scholarships?field=Public+Policy" className="hover:text-paper transition-colors">
-                  Public Policy &amp; Law
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal Column */}
-          <div className="md:col-span-3 space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gold">
-              Policies &amp; Terms
-            </h4>
-            <ul className="space-y-2 text-sm text-[#A5AAA3]">
-              <li>
-                <Link to="/privacy" className="hover:text-paper transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="hover:text-paper transition-colors">
-                  Terms &amp; Conditions
-                </Link>
-              </li>
-              <li className="pt-2 text-xs text-[#8E938D] leading-relaxed">
-                Local-first client application. No external user telemetry or credential tracking is stored on third-party servers.
-              </li>
-            </ul>
-          </div>
+    <footer className="relative overflow-hidden bg-sun text-ink">
+      <div className="container-x pb-10 pt-20 sm:pt-28">
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <h2 className="text-display font-semibold">Start your search.</h2>
+          <PillButton to="/start" variant="ink" size="lg" icon={Search} className="self-start md:self-auto">
+            Build my profile
+          </PillButton>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8E938D]">
+        <div className="mt-16 grid gap-10 border-t-2 border-ink/15 pt-12 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
           <div>
-            &copy; {new Date().getFullYear()} GRANTLY Platform. All institutional grants cited for demonstration and application testing purposes.
-          </div>
-          <div className="flex items-center gap-6">
-            <Link to="/privacy" className="hover:text-[#EDE9DF] transition-colors">
-              Privacy
+            <Link to="/" className="inline-flex items-center gap-2" aria-label="meritrail home">
+              <Logomark />
+              <Wordmark />
             </Link>
-            <span className="text-[#333E37]">&bull;</span>
-            <Link to="/terms" className="hover:text-[#EDE9DF] transition-colors">
-              Terms
-            </Link>
-            <span className="text-[#333E37]">&bull;</span>
-            <span className="font-mono text-[11px] text-[#A5AAA3]">Client Build v1.4.2</span>
+            <p className="mt-4 max-w-xs text-ink/75">
+              One profile, every match, every deadline in one place. A frontend demo built on sample data.
+            </p>
+            <address className="mt-6 not-italic text-sm leading-relaxed text-ink/75">
+              meritrail demo team
+              <br />
+              Placeholder address, 100 Example Street
+              <br />
+              <a className="underline decoration-ink/40 underline-offset-4 hover:decoration-ink" href="mailto:hello@meritrail.example">
+                hello@meritrail.example
+              </a>
+            </address>
           </div>
+
+          {COLUMNS.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <h3 className="eyebrow text-ink/70">{col.title}</h3>
+              <ul className="mt-4 space-y-3">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    {l.to ? (
+                      <Link to={l.to} className={linkClass}>
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a href={l.href} className={`${linkClass} inline-flex items-center gap-1.5`}>
+                        <Mail size={15} aria-hidden="true" />
+                        {l.label}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+
+        <div className="mt-14 flex flex-col-reverse gap-6 border-t-2 border-ink/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-ink/70">© 2026 meritrail. All listings shown are sample data for demonstration.</p>
+          <ul className="flex gap-2" aria-label="Social media">
+            {SOCIALS.map(({ label, Icon }) => (
+              <li key={label}>
+                <button
+                  type="button"
+                  onClick={() => notify(`The ${label} account is not live for this demo yet.`)}
+                  className="grid h-11 w-11 place-items-center rounded-full bg-ink text-sun transition-transform hover:-translate-y-0.5"
+                  aria-label={`meritrail on ${label} (not live in this demo)`}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>
   );
-};
-
+}

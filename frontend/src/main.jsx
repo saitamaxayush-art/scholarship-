@@ -1,17 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ScholarshipProvider } from './context/ScholarshipContext';
+import { MotionConfig } from 'framer-motion';
+import { AppStateProvider } from './context/AppState';
 import App from './App';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <ScholarshipProvider>
-        <App />
-      </ScholarshipProvider>
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MotionConfig reducedMotion="user">
+        <AppStateProvider>
+          <App />
+        </AppStateProvider>
+      </MotionConfig>
     </BrowserRouter>
-  </React.StrictMode>
+  </StrictMode>,
 );
-
